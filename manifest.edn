@@ -1,0 +1,41 @@
+;; yoro-supply 綾取供給 — actor manifest (Gen-3 kotoba-native)
+;; Material sourcing & logistics per ADR-2605250850
+{:actor/id        "yoro-supply"
+ :actor/glyph     "綾"
+ :actor/tier      :tier-b
+ :actor/domain    "yoro-supply.etzhayyim.com"
+ :actor/purpose   "Phase 0–4 material sourcing. Coordinates supplier selection, order placement, manufacture tracking, shipment, delivery verification per projectBOM."
+ :actor/status    :r0
+ :actor/adr       "2605250850"
+ :actor/related   ["2605250850"]
+ :actor/charter-rider
+ {:rider/version "2.0"
+  :rider/applied true}
+ :actor/gates
+ [{:gate/id "G1"  :gate/name "consent-bound"           :gate/rule "member DID-signed consent before dispatch"}
+  {:gate/id "G2"  :gate/name "charter-rider-screening" :gate/rule "Charter Rider §2(g) screening"}
+  {:gate/id "G5"  :gate/name "murakumo-only"           :gate/rule "KotobaLLM 127.0.0.1:4000 only"}
+  {:gate/id "G6"  :gate/name "kotoba-eavt-native"      :gate/rule "orders via kotoba Datom"}
+  {:gate/id "G7"  :gate/name "tithe-non-fiat"          :gate/rule "USDC Base L2 + TitheRouter 10%"}
+  {:gate/id "G8"  :gate/name "pii-encrypted-envelope"  :gate/rule "DID-bound encryption"}
+  {:gate/id "G9"  :gate/name "sourcing-legality"       :gate/rule "public/API-ToS sourcing"}
+  {:gate/id "G10" :gate/name "witness-quorum"          :gate/rule "2+ independent witnesses"}
+  {:gate/id "G11" :gate/name "no-server-key"           :gate/rule "member self-custody"}
+  {:gate/id "G12" :gate/name "ipfs-pinned-manifests"   :gate/rule "manufacturing via IPFS"}
+  {:gate/id "G13" :gate/name "supply-transparency"     :gate/rule "transparent end-to-end"}]
+ :actor/cells
+ [{:cell/id "supplier_selection" :cell/kind :langgraph :cell/runtime :wasm}
+  {:cell/id "order_placement"    :cell/kind :langgraph :cell/runtime :wasm}
+  {:cell/id "manufacture_track"  :cell/kind :langgraph :cell/runtime :wasm}
+  {:cell/id "shipment"           :cell/kind :langgraph :cell/runtime :wasm}
+  {:cell/id "delivery_verify"    :cell/kind :langgraph :cell/runtime :wasm}]
+ :actor/lex
+ [{:lex/id "supplierSelection"}
+  {:lex/id "purchaseOrder"}
+  {:lex/id "manufacturingProgress"}
+  {:lex/id "shipmentTracking"}
+  {:lex/id "deliveryVerified"}
+  {:lex/id "settlement"}]
+ :actor/legacy
+ {:manifest "manifest.jsonld"
+  :note "gen-1 jsonld manifest; gen-3 manifest.edn is canonical"}}

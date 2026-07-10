@@ -1,0 +1,3 @@
+# yoro-supply 綾取供給 — Python agent dependencies (minimal)
+# R0: no external LLM / fiat / vendor API imports (G5/G7)
+# kotoba bindings provided by host WASM runtime

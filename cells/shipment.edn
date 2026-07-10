@@ -1,0 +1,28 @@
+;; yoro-supply 綾取供給 — shipment cell (langgraph, WASM runtime)
+;; ADR-2605250850 · Phase 2 scaffold
+{:cell/id "shipment"
+ :cell/glyph "送"
+ :cell/kind :langgraph
+ :cell/runtime :wasm
+ :cell/entry "py/agent.cljc"
+ :cell/handler "handle_shipment"
+ :cell/doc "manufacturingProgressRecord (goods ready → factory gate) → shipmentTrackingRecord (carrier, ETA, customs docs)。carrier coordination + tracking number + estimated delivery date。全段 kotoba Datom に記録 (G13)。"
+ :cell/state-graph
+ {:nodes [:confirm-ready :arrange-carrier :generate-docs :track-shipment :estimate-arrival]
+  :entry :confirm-ready
+  :edges [[:confirm-ready :arrange-carrier] [:arrange-carrier :generate-docs]
+          [:generate-docs :track-shipment] [:track-shipment :estimate-arrival]
+          [:estimate-arrival :end]]}
+ :cell/llm
+ {:provider :murakumo
+  :endpoint "127.0.0.1:4000"
+  :model "gemma3:4b"
+  :charter-rider true}
+ :cell/gates ["G5" "G6" "G13"]
+ :cell/kotoba
+ {:reads [:manufacturing-progress/id :manufacturing-progress/po-id
+          :purchase-order/delivery-date]
+  :writes [:shipment-tracking/id :shipment-tracking/po-id
+           :shipment-tracking/carrier :shipment-tracking/tracking-number
+           :shipment-tracking/eta :shipment-tracking/customs-cleared
+           :shipment-tracking/timestamp]}}

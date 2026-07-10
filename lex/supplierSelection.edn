@@ -1,0 +1,23 @@
+;; com.etzhayyim.yorosupply.supplierSelection — lexicon (EDN form)
+;; ADR-2605250850 · Phase 2 — supplier selection results per BOM
+{:lexicon 1
+ :id "com.etzhayyim.yorosupply.supplierSelection"
+ :defs
+ {:main
+  {:type "record"
+   :key "tid"
+   :record
+   {:type "object"
+    :required ["selectionId" "bomId" "candidates" "charterPassed" "timestamp"]
+    :properties
+    {:selectionId {:type "string" :description "unique selection record ID"}
+     :bomId       {:type "string" :description "→ projectBOM"}
+     :candidates  {:type "array"
+                   :items {:type "object"
+                           :properties {:supplierDid {:type "string"}
+                                       :region {:type "string"}
+                                       :capabilities {:type "array" :items {:type "string"}}
+                                       :capabilityScore {:type "integer"}}}
+                   :description "ranked supplier candidates"}
+     :charterPassed {:type "boolean" :description "all candidates passed Charter Rider §2(g)"}
+     :timestamp   {:type "string" :description "ISO-8601 datetime"}}}}}}

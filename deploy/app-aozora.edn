@@ -1,0 +1,1 @@
+{:deployment/id "yoro-supply-app-aozora" :deployment/target :app-aozora :deployment/mode :external-actor-repository :deployment/manifest-path "manifest.edn" :deployment/actor-did "did:web:etzhayyim.com:yoro-supply" :deployment/revision :pin-at-deploy :deployment/manifest-digest :verify-at-deploy :deployment/approval-required true}

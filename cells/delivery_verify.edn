@@ -1,0 +1,28 @@
+;; yoro-supply 綾取供給 — delivery_verify cell (langgraph, WASM runtime)
+;; ADR-2605250850 · Phase 2 scaffold
+{:cell/id "delivery_verify"
+ :cell/glyph "確"
+ :cell/kind :langgraph
+ :cell/runtime :wasm
+ :cell/entry "py/agent.cljc"
+ :cell/handler "handle_delivery_verify"
+ :cell/doc "shipmentTrackingRecord (goods arrive at site) → materialAttestation (weights, certifications, QC results)。≥2 independent witnesses (G10)。全段 kotoba Datom に記録 (G13)。tatekata へ feed。"
+ :cell/state-graph
+ {:nodes [:receive-shipment :witness-intake :verify-qty :check-certifications :attest-quality]
+  :entry :receive-shipment
+  :edges [[:receive-shipment :witness-intake] [:witness-intake :verify-qty]
+          [:verify-qty :check-certifications] [:check-certifications :attest-quality]
+          [:attest-quality :end]]}
+ :cell/llm
+ {:provider :murakumo
+  :endpoint "127.0.0.1:4000"
+  :model "gemma3:4b"
+  :charter-rider true}
+ :cell/gates ["G6" "G10" "G13"]
+ :cell/kotoba
+ {:reads [:shipment-tracking/id :shipment-tracking/po-id
+          :purchase-order/materials :purchase-order/qty]
+  :writes [:delivery-verified/id :delivery-verified/po-id
+           :delivery-verified/received-qty :delivery-verified/witness-dids
+           :delivery-verified/certification-status :delivery-verified/qc-result
+           :delivery-verified/timestamp :delivery-verified/attestation-uri]}}

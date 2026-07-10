@@ -1,0 +1,29 @@
+;; com.etzhayyim.yorosupply.deliveryVerified — lexicon (EDN form)
+;; ADR-2605250850 · Phase 2 — final delivery attestation
+{:lexicon 1
+ :id "com.etzhayyim.yorosupply.deliveryVerified"
+ :defs
+ {:main
+  {:type "record"
+   :key "tid"
+   :record
+   {:type "object"
+    :required ["attestationId" "poId" "receivedQty" "witnessDids" "qcResult" "timestamp"]
+    :properties
+    {:attestationId {:type "string" :description "unique delivery attestation record ID"}
+     :poId          {:type "string" :description "→ purchaseOrder"}
+     :receivedQty   {:type "array"
+                     :items {:type "object"
+                             :properties {:material {:type "string"}
+                                         :received {:type "integer"}
+                                         :ordered {:type "integer"}}}
+                     :description "received vs ordered quantities"}
+     :witnessDids   {:type "array" :items {:type "string"}
+                     :description "≥2 independent witness DIDs (G10)"}
+     :certificationStatus {:type "string" :description "all|partial|missing"}
+     :certifications {:type "array" :items {:type "string"}
+                     :description "material certs / CoC references"}
+     :qcResult      {:type "string" :description "pass|fail|conditional"}
+     :qcNotes       {:type "string" :description "QC findings"}
+     :attestationUri {:type "string" :description "IPFS CIDv1 to full attestation record"}
+     :timestamp     {:type "string" :description "ISO-8601 datetime"}}}}}}

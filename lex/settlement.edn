@@ -1,0 +1,23 @@
+;; com.etzhayyim.yorosupply.settlement — lexicon (EDN form)
+;; ADR-2605250850 · Phase 2 — USDC on-chain settlement
+{:lexicon 1
+ :id "com.etzhayyim.yorosupply.settlement"
+ :defs
+ {:main
+  {:type "record"
+   :key "tid"
+   :record
+   {:type "object"
+    :required ["settlementId" "poId" "amountMinor" "currency" "state"]
+    :properties
+    {:settlementId  {:type "string" :description "unique settlement record ID"}
+     :poId          {:type "string" :description "purchase order ref"}
+     :supplierDid   {:type "string" :description "supplier recipient"}
+     :amountMinor   {:type "integer" :description "USDC minor (6-dp)"}
+     :currency      {:type "string" :description "USDC (Base L2); no fiat"}
+     :txHash        {:type "string" :description "Base L2 settlement tx"}
+     :titheMinor    {:type "integer" :description "10% to Public Fund"}
+     :supplierPayoutMinor {:type "integer" :description "net to supplier"}
+     :state         {:type "string" :description "intent|settled|refunded"}
+     :buyerSigRef   {:type "string" :description "member signature ref"}}}}}}
+

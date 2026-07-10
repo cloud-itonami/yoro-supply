@@ -1,0 +1,20 @@
+;; com.etzhayyim.yorosupply.shipmentTracking — lexicon (EDN form)
+;; ADR-2605250850 · Phase 2 — carrier coordination + ETA
+{:lexicon 1
+ :id "com.etzhayyim.yorosupply.shipmentTracking"
+ :defs
+ {:main
+  {:type "record"
+   :key "tid"
+   :record
+   {:type "object"
+    :required ["trackingId" "poId" "carrier" "trackingNumber" "eta" "timestamp"]
+    :properties
+    {:trackingId    {:type "string" :description "unique tracking record ID"}
+     :poId          {:type "string" :description "→ purchaseOrder"}
+     :carrier       {:type "string" :description "logistics provider"}
+     :trackingNumber {:type "string" :description "carrier tracking reference"}
+     :eta           {:type "string" :description "ISO-8601 estimated delivery time"}
+     :customsCleared {:type "boolean" :description "customs clearance status"}
+     :customsNote   {:type "string" :description "customs docs reference or note"}
+     :timestamp     {:type "string" :description "ISO-8601 datetime"}}}}}}

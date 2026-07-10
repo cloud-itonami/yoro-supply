@@ -1,0 +1,50 @@
+;; yoro-supply 綾取供給 — kotoba seed datoms (R0 bootstrap)
+;; ADR-2605250850 · migration plan Phase 3
+;; Representative suppliers (Japan sourcing focus) + worked example project BOM
+
+[;; ───────────────────────────── Representative suppliers (R0 sourcing mode) ─────────────────────────────
+ {:supplier/did "did:web:yoro-supply.etzhayyim.com:supplier:nippon-steel-001"
+  :supplier/display-name "Nippon Steel Corporation — structural steel"
+  :supplier/region "JP"
+  :supplier/capabilities ["steel" "h-beam" "structural"]
+  :supplier/charter-compliance :passed
+  :supplier/charter-note "conflict-free sourcing verified; rare-earth-free (not applicable)"
+  :supplier/sourcing :representative}
+
+ {:supplier/did "did:web:yoro-supply.etzhayyim.com:supplier:taiheiyo-cement-001"
+  :supplier/display-name "Taiheiyo Cement — concrete + ready-mix"
+  :supplier/region "JP"
+  :supplier/capabilities ["concrete" "cement" "ready-mix"]
+  :supplier/charter-compliance :passed
+  :supplier/charter-note "conflict-free; mining sites audited"
+  :supplier/sourcing :representative}
+
+ {:supplier/did "did:web:yoro-supply.etzhayyim.com:supplier:asahi-kasei-001"
+  :supplier/display-name "Asahi Kasei — insulation + building materials"
+  :supplier/region "JP"
+  :supplier/capabilities ["insulation" "foam" "building-materials"]
+  :supplier/charter-compliance :passed
+  :supplier/charter-note "rare-earth-free; chemical sourcing transparent"
+  :supplier/sourcing :representative}
+
+ ;; ───────────────────────────── Worked example: tatekata project BOM ─────────────────────────────
+ {:bom/id "bom-tatekata-p1-2606010000"
+  :bom/project-id "tatekata-p1-2606010000"
+  :bom/materials ["structural steel H-beam 200mm" "concrete 25 MPa" "mineral wool insulation 50mm"]
+  :bom/quantities [12 50 100]}
+
+ ;; ───────────────────────────── Supplier selection result (R0 example) ─────────────────────────────
+ {:supplier-selection/id "ss-tatekata-p1-001"
+  :supplier-selection/bom [:bom/id "bom-tatekata-p1-2606010000"]
+  :supplier-selection/candidates [:supplier/did "did:web:yoro-supply.etzhayyim.com:supplier:nippon-steel-001"
+                                 :supplier/did "did:web:yoro-supply.etzhayyim.com:supplier:taiheiyo-cement-001"
+                                 :supplier/did "did:web:yoro-supply.etzhayyim.com:supplier:asahi-kasei-001"]
+  :supplier-selection/charter-passed true
+  :supplier-selection/timestamp "2026-06-01T00:00:00Z"}
+
+ ;; ───────────────────────────── SBT registry (sample members) ─────────────────────────────
+ {:sbt/holder-did "did:web:etzhayyim.com:members:m1"
+  :sbt/active true}
+
+ {:sbt/holder-did "did:web:etzhayyim.com:members:m2"
+  :sbt/active true}]

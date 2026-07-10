@@ -1,0 +1,19 @@
+;; com.etzhayyim.yorosupply.manufacturingProgress — lexicon (EDN form)
+;; ADR-2605250850 · Phase 2 — factory telemetry via IPFS
+{:lexicon 1
+ :id "com.etzhayyim.yorosupply.manufacturingProgress"
+ :defs
+ {:main
+  {:type "record"
+   :key "tid"
+   :record
+   {:type "object"
+    :required ["progressId" "poId" "stage" "pct" "timestamp"]
+    :properties
+    {:progressId   {:type "string" :description "unique progress record ID"}
+     :poId         {:type "string" :description "→ purchaseOrder"}
+     :stage        {:type "string" :description "raw|assembly|qc|ready"}
+     :pct          {:type "integer" :description "0..100 completion"}
+     :ipfsPin      {:type "string" :description "CIDv1 to factory telemetry photo/manifest (G12)"}
+     :factoryNote  {:type "string" :description "factory progress notes"}
+     :timestamp    {:type "string" :description "ISO-8601 datetime"}}}}}}

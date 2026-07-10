@@ -1,0 +1,21 @@
+{
+  "@context": "https://etzhayyim.com/.well-known/etzhayyim-context.jsonld",
+  "id": "did:web:etzhayyim.com:yoro-supply",
+  "type": "etzhayyim:TierBActor",
+  "name": "yoro-supply (材料供給 — material sourcing Tier-B actor)",
+  "description": "Phase 0–4 material sourcing & logistics per ADR-2605250850. Coordinates supplier selection, order placement, manufacture tracking, shipment, delivery verification per projectBOM.",
+  "cells": [
+    {"name": "supplier_selection", "murakumoNode": "zebulun"},
+    {"name": "order_placement", "murakumoNode": "zebulun"},
+    {"name": "manufacture_track", "murakumoNode": "zebulun"},
+    {"name": "shipment", "murakumoNode": "zebulun"},
+    {"name": "delivery_verify", "murakumoNode": "zebulun"}
+  ],
+  "lexicons": [
+    "com.etzhayyim.supply.supplierSelection",
+    "com.etzhayyim.supply.purchaseOrder",
+    "com.etzhayyim.supply.manufacturingProgress",
+    "com.etzhayyim.supply.shipmentTracking",
+    "com.etzhayyim.supply.deliveryVerified"
+  ]
+}

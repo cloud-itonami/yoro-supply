@@ -1,0 +1,27 @@
+;; yoro-supply 綾取供給 — order_placement cell (langgraph, WASM runtime)
+;; ADR-2605250850 · Phase 2 scaffold
+{:cell/id "order_placement"
+ :cell/glyph "発"
+ :cell/kind :langgraph
+ :cell/runtime :wasm
+ :cell/entry "py/agent.cljc"
+ :cell/handler "handle_order_placement"
+ :cell/doc "selectedSuppliers + deliverySchedule → purchaseOrderConfirmation + manufacturingSchedule。member が order principal (G1 consent)。全段 kotoba Datom に記録 (G13)。"
+ :cell/state-graph
+ {:nodes [:prepare-spec :create-po :confirm-supplier :plan-schedule :validate-schedule]
+  :entry :prepare-spec
+  :edges [[:prepare-spec :create-po] [:create-po :confirm-supplier]
+          [:confirm-supplier :plan-schedule] [:plan-schedule :validate-schedule]
+          [:validate-schedule :end]]}
+ :cell/llm
+ {:provider :murakumo
+  :endpoint "127.0.0.1:4000"
+  :model "gemma3:4b"
+  :charter-rider true}
+ :cell/gates ["G1" "G6" "G13"]
+ :cell/kotoba
+ {:reads [:supplier-selection/id :supplier-selection/candidates
+          :supplier/did :supplier/lead-time]
+  :writes [:purchase-order/id :purchase-order/supplier-did :purchase-order/materials
+           :purchase-order/qty :purchase-order/delivery-date :purchase-order/state
+           :manufacturing-schedule/id :manufacturing-schedule/po-id]}}

@@ -1,0 +1,26 @@
+;; yoro-supply 綾取供給 — supplier_selection cell (langgraph, WASM runtime)
+;; ADR-2605250850 · Phase 2 scaffold
+{:cell/id "supplier_selection"
+ :cell/glyph "選"
+ :cell/kind :langgraph
+ :cell/runtime :wasm
+ :cell/entry "py/agent.cljc"
+ :cell/handler "handle_supplier_selection"
+ :cell/doc "projectBOM から supplier candidates を matching: capability + Charter Rider §2(g) screening (conflict minerals + rare-earth-free) + cost tiers。Murakumo LLM rerank (G5)。全段 kotoba Datom に記録 (G13)。"
+ :cell/state-graph
+ {:nodes [:extract-specs :match-capability :screen-compliance :rank-cost-tiers :select-best]
+  :entry :extract-specs
+  :edges [[:extract-specs :match-capability] [:match-capability :screen-compliance]
+          [:screen-compliance :rank-cost-tiers] [:rank-cost-tiers :select-best]
+          [:select-best :end]]}
+ :cell/llm
+ {:provider :murakumo
+  :endpoint "127.0.0.1:4000"
+  :model "gemma3:4b"
+  :charter-rider true}
+ :cell/gates ["G1" "G2" "G5" "G6" "G9" "G13"]
+ :cell/kotoba
+ {:reads [:bom/id :bom/materials :supplier/did :supplier/capabilities :supplier/region
+          :supplier/charter-compliance]
+  :writes [:supplier-selection/id :supplier-selection/bom-id :supplier-selection/candidates
+           :supplier-selection/charter-passed :supplier-selection/timestamp]}}

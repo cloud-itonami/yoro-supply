@@ -1,0 +1,250 @@
+;; yoro-supply 綾取供給 — kotoba EAVT schema
+;; ADR-2605250850 · migration plan Phase 3
+;; Material sourcing & logistics over kotoba Datoms: supplier registry, BOM tracking,
+;; purchase order state machine, manufacturing progress, shipment tracking, delivery
+;; verification, and on-chain settlement intent. All state is kotoba Datoms — replaces
+;; legacy SQL / G() builder / RisingWave path (G6).
+
+[;; ───────────────────────────── :supplier/* — supplier registry entry ─────────────────────────────
+ {:db/ident :supplier/did
+  :db/valueType :db.type/string
+  :db/cardinality :db.cardinality/one
+  :db/unique :db.unique/identity
+  :db/doc "supplier DID (did:web:yoro-supply.etzhayyim.com/...)"}
+ {:db/ident :supplier/display-name
+  :db/valueType :db.type/string
+  :db/cardinality :db.cardinality/one}
+ {:db/ident :supplier/region
+  :db/valueType :db.type/string
+  :db/cardinality :db.cardinality/one
+  :db/doc "ISO 3166-1 alpha-2 country code"}
+ {:db/ident :supplier/capabilities
+  :db/valueType :db.type/string
+  :db/cardinality :db.cardinality/many
+  :db/doc "material categories, e.g. steel / concrete / lumber / drywall"}
+ {:db/ident :supplier/charter-compliance
+  :db/valueType :db.type/keyword
+  :db/cardinality :db.cardinality/one
+  :db/doc ":passed | :pending | :failed — Charter Rider §2(g) screening (G2)"}
+ {:db/ident :supplier/charter-note
+  :db/valueType :db.type/string
+  :db/cardinality :db.cardinality/one
+  :db/doc "conflict minerals / rare-earth screening result (G2)"}
+ {:db/ident :supplier/sourcing
+  :db/valueType :db.type/keyword
+  :db/cardinality :db.cardinality/one
+  :db/doc ":authoritative | :representative (R0 seed honesty, G9)"}
+
+ ;; ───────────────────────────── :bom/* — bill of materials ─────────────────────────────
+ {:db/ident :bom/id
+  :db/valueType :db.type/string
+  :db/cardinality :db.cardinality/one
+  :db/unique :db.unique/identity}
+ {:db/ident :bom/project-id
+  :db/valueType :db.type/string
+  :db/cardinality :db.cardinality/one
+  :db/doc "associated project ID (e.g. tatekata project)"}
+ {:db/ident :bom/materials
+  :db/valueType :db.type/string
+  :db/cardinality :db.cardinality/many
+  :db/doc "material descriptors (e.g. 'steel H-beam 200mm')"}
+ {:db/ident :bom/quantities
+  :db/valueType :db.type/long
+  :db/cardinality :db.cardinality/many
+  :db/doc "quantities paired with materials"}
+
+ ;; ───────────────────────────── :supplier-selection/* — selection results ─────────────────────────────
+ {:db/ident :supplier-selection/id
+  :db/valueType :db.type/string
+  :db/cardinality :db.cardinality/one
+  :db/unique :db.unique/identity}
+ {:db/ident :supplier-selection/bom
+  :db/valueType :db.type/ref
+  :db/cardinality :db.cardinality/one}
+ {:db/ident :supplier-selection/candidates
+  :db/valueType :db.type/ref
+  :db/cardinality :db.cardinality/many
+  :db/doc "ref → :supplier candidates ranked by capability"}
+ {:db/ident :supplier-selection/charter-passed
+  :db/valueType :db.type/boolean
+  :db/cardinality :db.cardinality/one
+  :db/doc "all candidates passed Charter Rider §2(g)"}
+ {:db/ident :supplier-selection/timestamp
+  :db/valueType :db.type/string
+  :db/cardinality :db.cardinality/one}
+
+ ;; ───────────────────────────── :purchase-order/* — order state machine ─────────────────────────────
+ {:db/ident :purchase-order/id
+  :db/valueType :db.type/string
+  :db/cardinality :db.cardinality/one
+  :db/unique :db.unique/identity}
+ {:db/ident :purchase-order/member-did
+  :db/valueType :db.type/string
+  :db/cardinality :db.cardinality/one
+  :db/doc "member = ordering principal (G1 consent); active Adherent SBT required"}
+ {:db/ident :purchase-order/supplier
+  :db/valueType :db.type/ref
+  :db/cardinality :db.cardinality/one
+  :db/doc "ref → :supplier fulfilling the order"}
+ {:db/ident :purchase-order/materials
+  :db/valueType :db.type/string
+  :db/cardinality :db.cardinality/many
+  :db/doc "ordered materials"}
+ {:db/ident :purchase-order/quantities
+  :db/valueType :db.type/long
+  :db/cardinality :db.cardinality/many
+  :db/doc "order quantities paired with materials"}
+ {:db/ident :purchase-order/delivery-date
+  :db/valueType :db.type/string
+  :db/cardinality :db.cardinality/one
+  :db/doc "ISO-8601 scheduled delivery"}
+ {:db/ident :purchase-order/state
+  :db/valueType :db.type/keyword
+  :db/cardinality :db.cardinality/one
+  :db/doc ":draft → :placed → :confirmed → :in-production → :ready → :shipped"}
+ {:db/ident :purchase-order/supplier-consent
+  :db/valueType :db.type/string
+  :db/cardinality :db.cardinality/one
+  :db/doc "supplier DID-signed consent ref (G1)"}
+
+ ;; ───────────────────────────── :manufacturing-progress/* — factory telemetry ─────────────────────────────
+ {:db/ident :manufacturing-progress/id
+  :db/valueType :db.type/string
+  :db/cardinality :db.cardinality/one
+  :db/unique :db.unique/identity}
+ {:db/ident :manufacturing-progress/order
+  :db/valueType :db.type/ref
+  :db/cardinality :db.cardinality/one}
+ {:db/ident :manufacturing-progress/stage
+  :db/valueType :db.type/keyword
+  :db/cardinality :db.cardinality/one
+  :db/doc ":raw | :assembly | :qc | :ready"}
+ {:db/ident :manufacturing-progress/pct
+  :db/valueType :db.type/long
+  :db/cardinality :db.cardinality/one
+  :db/doc "0..100 completion"}
+ {:db/ident :manufacturing-progress/ipfs-pin
+  :db/valueType :db.type/string
+  :db/cardinality :db.cardinality/one
+  :db/doc "CIDv1 to factory telemetry photo/manifest (G12)"}
+ {:db/ident :manufacturing-progress/note
+  :db/valueType :db.type/string
+  :db/cardinality :db.cardinality/one}
+ {:db/ident :manufacturing-progress/timestamp
+  :db/valueType :db.type/string
+  :db/cardinality :db.cardinality/one}
+
+ ;; ───────────────────────────── :shipment-tracking/* — carrier coordination ─────────────────────────────
+ {:db/ident :shipment-tracking/id
+  :db/valueType :db.type/string
+  :db/cardinality :db.cardinality/one
+  :db/unique :db.unique/identity}
+ {:db/ident :shipment-tracking/order
+  :db/valueType :db.type/ref
+  :db/cardinality :db.cardinality/one}
+ {:db/ident :shipment-tracking/carrier
+  :db/valueType :db.type/string
+  :db/cardinality :db.cardinality/one}
+ {:db/ident :shipment-tracking/tracking-number
+  :db/valueType :db.type/string
+  :db/cardinality :db.cardinality/one}
+ {:db/ident :shipment-tracking/eta
+  :db/valueType :db.type/string
+  :db/cardinality :db.cardinality/one
+  :db/doc "ISO-8601 estimated delivery"}
+ {:db/ident :shipment-tracking/customs-cleared
+  :db/valueType :db.type/boolean
+  :db/cardinality :db.cardinality/one}
+ {:db/ident :shipment-tracking/customs-note
+  :db/valueType :db.type/string
+  :db/cardinality :db.cardinality/one}
+ {:db/ident :shipment-tracking/timestamp
+  :db/valueType :db.type/string
+  :db/cardinality :db.cardinality/one}
+
+ ;; ───────────────────────────── :delivery-verified/* — final attestation ─────────────────────────────
+ {:db/ident :delivery-verified/id
+  :db/valueType :db.type/string
+  :db/cardinality :db.cardinality/one
+  :db/unique :db.unique/identity}
+ {:db/ident :delivery-verified/order
+  :db/valueType :db.type/ref
+  :db/cardinality :db.cardinality/one}
+ {:db/ident :delivery-verified/received-qty
+  :db/valueType :db.type/long
+  :db/cardinality :db.cardinality/many
+  :db/doc "received quantities paired with materials"}
+ {:db/ident :delivery-verified/witness-dids
+  :db/valueType :db.type/string
+  :db/cardinality :db.cardinality/many
+  :db/doc "≥2 independent witness DIDs (G10)"}
+ {:db/ident :delivery-verified/certification-status
+  :db/valueType :db.type/keyword
+  :db/cardinality :db.cardinality/one
+  :db/doc ":all | :partial | :missing"}
+ {:db/ident :delivery-verified/certifications
+  :db/valueType :db.type/string
+  :db/cardinality :db.cardinality/many
+  :db/doc "material cert refs / chain-of-custody"}
+ {:db/ident :delivery-verified/qc-result
+  :db/valueType :db.type/keyword
+  :db/cardinality :db.cardinality/one
+  :db/doc ":pass | :fail | :conditional"}
+ {:db/ident :delivery-verified/qc-notes
+  :db/valueType :db.type/string
+  :db/cardinality :db.cardinality/one}
+ {:db/ident :delivery-verified/attestation-uri
+  :db/valueType :db.type/string
+  :db/cardinality :db.cardinality/one
+  :db/doc "IPFS CIDv1 to full attestation record"}
+ {:db/ident :delivery-verified/timestamp
+  :db/valueType :db.type/string
+  :db/cardinality :db.cardinality/one}
+
+ ;; ───────────────────────────── :settlement/* — USDC + TitheRouter intent ─────────────────────────────
+ {:db/ident :settlement/id
+  :db/valueType :db.type/string
+  :db/cardinality :db.cardinality/one
+  :db/unique :db.unique/identity}
+ {:db/ident :settlement/order
+  :db/valueType :db.type/ref
+  :db/cardinality :db.cardinality/one}
+ {:db/ident :settlement/rail
+  :db/valueType :db.type/keyword
+  :db/cardinality :db.cardinality/one
+  :db/doc ":usdc-base-l2 (ERC-4337 smart-account via warifu, ADR-2605302000); no fiat"}
+ {:db/ident :settlement/gross-minor
+  :db/valueType :db.type/long
+  :db/cardinality :db.cardinality/one
+  :db/doc "USDC minor (6-dp) gross order value"}
+ {:db/ident :settlement/tithe-minor
+  :db/valueType :db.type/long
+  :db/cardinality :db.cardinality/one
+  :db/doc "10% TitheRouter auto-split → Public Fund (G7)"}
+ {:db/ident :settlement/supplier-payout-minor
+  :db/valueType :db.type/long
+  :db/cardinality :db.cardinality/one
+  :db/doc "net to supplier (gross − tithe), USDC minor"}
+ {:db/ident :settlement/tithe-router
+  :db/valueType :db.type/string
+  :db/cardinality :db.cardinality/one
+  :db/doc "TitheRouter contract ref"}
+ {:db/ident :settlement/state
+  :db/valueType :db.type/keyword
+  :db/cardinality :db.cardinality/one
+  :db/doc ":intent (computed, NOT broadcast) | :executed (member-signed + operator-broadcast). R0 stops at :intent"}
+ {:db/ident :settlement/member-sig-ref
+  :db/valueType :db.type/string
+  :db/cardinality :db.cardinality/one
+  :db/doc "member passkey/smart-account signature ref; platform holds no key (G11). absent ⇒ stays :intent"}
+
+ ;; ───────────────────────────── :sbt/* — Adherent SBT eligibility ─────────────────────────────
+ {:db/ident :sbt/holder-did
+  :db/valueType :db.type/string
+  :db/cardinality :db.cardinality/one
+  :db/unique :db.unique/identity
+  :db/doc "DID of an Adherent SBT holder"}
+ {:db/ident :sbt/active
+  :db/valueType :db.type/boolean
+  :db/cardinality :db.cardinality/one
+  :db/doc "active Adherent SBT? required for member ordering"}]

@@ -1,0 +1,27 @@
+;; yoro-supply 綾取供給 — manufacture_track cell (langgraph, WASM runtime)
+;; ADR-2605250850 · Phase 2 scaffold
+{:cell/id "manufacture_track"
+ :cell/glyph "製"
+ :cell/kind :langgraph
+ :cell/runtime :wasm
+ :cell/entry "py/agent.cljc"
+ :cell/handler "handle_manufacture_track"
+ :cell/doc "purchaseOrderConfirmation → manufacturingProgressRecord (factory telemetry via IPFS, G12)。production stage (raw → assembly → qc → ready) を tracking。全段 kotoba Datom に記録 (G13)。"
+ :cell/state-graph
+ {:nodes [:receive-po :poll-factory :ingest-telemetry :update-progress :mark-ready]
+  :entry :receive-po
+  :edges [[:receive-po :poll-factory] [:poll-factory :ingest-telemetry]
+          [:ingest-telemetry :update-progress] [:update-progress :mark-ready]
+          [:mark-ready :end]]}
+ :cell/llm
+ {:provider :murakumo
+  :endpoint "127.0.0.1:4000"
+  :model "gemma3:4b"
+  :charter-rider true}
+ :cell/gates ["G5" "G6" "G12" "G13"]
+ :cell/kotoba
+ {:reads [:purchase-order/id :purchase-order/supplier-did
+          :manufacturing-schedule/id]
+  :writes [:manufacturing-progress/id :manufacturing-progress/po-id
+           :manufacturing-progress/stage :manufacturing-progress/pct
+           :manufacturing-progress/ipfs-pin :manufacturing-progress/timestamp]}}
