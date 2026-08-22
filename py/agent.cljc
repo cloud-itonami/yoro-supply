@@ -154,5 +154,8 @@
     (println "selection candidates:" (map #(get % "supplierDid") (get demo "candidates")))
     (println "settlement:" (build-settlement-intent 500000000))))
 
-(when (= *file* (System/getProperty "babashka.file"))
-  (main))
+;; bb 直接実行時だけ demo を走らせる。nbb (cljs) からは nbb.core/load-file で
+;; 純関数として使うので、この entry は :clj 側にだけ残す。
+#?(:clj
+   (when (= *file* (System/getProperty "babashka.file"))
+     (main)))
