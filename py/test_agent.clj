@@ -7,7 +7,7 @@
   injected functions so the suite runs offline (Murakumo-only invariant
   untouched; G5).
 
-  Run:  bb --classpath 20-actors 20-actors/yoro-supply/py/test_agent.cljc"
+  Run:  bb py/test_agent.clj"
   (:require [clojure.test :refer [deftest is run-tests testing]]
             [clojure.java.io :as io]))
 
