@@ -28,7 +28,7 @@
    （com.etzhayyim.yorosupply.*）と既に drift しているが、manifest.edn 自身が
    :actor/legacy で jsonld を非正本と宣言しているので、ここでは jsonld からは
    **DID だけ**を契約に数える —— DID は世代を跨いで割れてはならない唯一の identity。"
-  (:require [kotoba.lang.text :as str]))
+  (:require [clojure.string :as str]))
 
 (defn- v [rule detail] {:rule rule :detail detail})
 
