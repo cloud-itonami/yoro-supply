@@ -7,7 +7,7 @@
   screening / G7 tithe 10% / G7+G11 署名なし settlement は intent 止まり）を
   実挙動で固定する —— descriptor が正しくても決定核が壊れれば actor の宣言は
   嘘になるからである。"
-  (:require [clojure.string :as str]
+  (:require [kotoba.lang.text :as str]
             [clojure.test :refer [deftest is testing]]
             [cljs.reader :as reader]
             [etzhayyim.yoro-supply.contract :as c]
