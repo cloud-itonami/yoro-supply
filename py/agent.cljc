@@ -21,7 +21,7 @@
   does not broadcast settlements (settlement stops at :intent).
 
   Run:  bb --classpath 20-actors 20-actors/yoro-supply/py/agent.cljc"
-  (:require [clojure.string :as str]
+  (:require [kotoba.lang.text :as str]
             [clojure.set :as set]))
 
 (def TITHE_BPS 1000)
@@ -29,10 +29,10 @@
 (defn _capability-match
   "Token-overlap capability scoring. Crude by design; Murakumo reranks."
   [material supplier]
-  (let [material-tokens (set (str/split (str/lower-case (str material)) #"\s+"))
+  (let [material-tokens (set (str/split (str/lower (str material)) #"\s+"))
         supplier-caps (get supplier "capabilities" [])]
     (reduce (fn [score cap]
-              (let [cap-tokens (set (str/split (str/lower-case (str cap)) #"\s+"))]
+              (let [cap-tokens (set (str/split (str/lower (str cap)) #"\s+"))]
                 (if (seq (set/intersection material-tokens cap-tokens))
                   (inc score)
                   score)))
