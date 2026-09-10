@@ -4,7 +4,7 @@
  :cell/glyph "送"
  :cell/kind :langgraph
  :cell/runtime :wasm
- :cell/entry "py/agent.cljc"
+ :cell/entry "py/agent.kotoba"
  :cell/handler "handle_shipment"
  :cell/doc "manufacturingProgressRecord (goods ready → factory gate) → shipmentTrackingRecord (carrier, ETA, customs docs)。carrier coordination + tracking number + estimated delivery date。全段 kotoba Datom に記録 (G13)。"
  :cell/state-graph
