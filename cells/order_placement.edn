@@ -4,7 +4,7 @@
  :cell/glyph "発"
  :cell/kind :langgraph
  :cell/runtime :wasm
- :cell/entry "py/agent.cljc"
+ :cell/entry "py/agent.kotoba"
  :cell/handler "handle_order_placement"
  :cell/doc "selectedSuppliers + deliverySchedule → purchaseOrderConfirmation + manufacturingSchedule。member が order principal (G1 consent)。全段 kotoba Datom に記録 (G13)。"
  :cell/state-graph

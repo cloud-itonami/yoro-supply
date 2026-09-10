@@ -4,7 +4,7 @@
  :cell/glyph "確"
  :cell/kind :langgraph
  :cell/runtime :wasm
- :cell/entry "py/agent.cljc"
+ :cell/entry "py/agent.kotoba"
  :cell/handler "handle_delivery_verify"
  :cell/doc "shipmentTrackingRecord (goods arrive at site) → materialAttestation (weights, certifications, QC results)。≥2 independent witnesses (G10)。全段 kotoba Datom に記録 (G13)。tatekata へ feed。"
  :cell/state-graph
