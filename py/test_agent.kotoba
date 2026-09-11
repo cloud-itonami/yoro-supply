@@ -1,4 +1,4 @@
-#!/usr/bin/env bb
+#!/usr/bin/env kbb
 ;; Clojure port of test_agent.cljc for yoro-supply agent.
 (ns yoro-supply.cljc.test-agent
   "yoro-supply 綾取供給 — agent cell tests (no kotoba host, no network, no LLM).
@@ -7,7 +7,7 @@
   injected functions so the suite runs offline (Murakumo-only invariant
   untouched; G5).
 
-  Run:  bb py/test_agent.clj"
+  Run:  kbb py/test_agent.cljk"
   (:require [clojure.test :refer [deftest is run-tests testing]]
             [clojure.java.io :as io]))
 

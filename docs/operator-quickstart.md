@@ -86,7 +86,7 @@ runner still said `(:require [etzhayyim.yoro-supply.contract-test])`, which
 nbb cannot resolve for a `.kotoba` file, so at `2a6c9be`:
 
 ```
-nbb --classpath src:test run_tests.kotoba
+kbb --backend sci --classpath src:test run_tests.kotoba
 Error: Could not find namespace: etzhayyim.yoro-supply.contract-test
 ```
 
@@ -101,7 +101,7 @@ The suite loads `py/agent.kotoba` and calls it; you can do the same from the
 repository root:
 
 ```
-nbb -e '(require (quote [nbb.core :as nbb]))
+kbb --backend sci -e '(require (quote [nbb.core :as nbb]))
 (.then (nbb/load-file "py/agent.kotoba")
   (fn [_]
     (let [a (find-ns (quote yoro-supply.cljc.agent))
@@ -172,7 +172,7 @@ cells/supplier_selection.edn`) and step 1 is green again — observed.
 check:
 
 ```
-nbb -e '(require (quote [cljs.reader :as r])) (require (quote ["node:fs" :as fs]))
+kbb --backend sci -e '(require (quote [cljs.reader :as r])) (require (quote ["node:fs" :as fs]))
 (let [s (r/read-string (.readFileSync fs "kotoba/seed.edn" "utf8"))
       sc (r/read-string (.readFileSync fs "kotoba/schema.edn" "utf8"))]
   (println :seed (count s) (frequencies (map (fn [m] (some namespace (keys m))) s)))
@@ -220,7 +220,7 @@ manufacturers used as R0 stand-ins, not counterparties with an agreement.
   that is not in this repository and never was (`git log --all` finds nothing).
   Treat it as a description of the intended sequence, not a runnable step.
 - **`py/test_agent.kotoba` does not run here.** It is a bb-hosted port
-  (`clojure.java.io`, `System/getProperty "babashka.file"`); bb is a retired
+  (`clojure.java.io`, `System/getProperty "babashka.file"`); kbb -M:is a retired
   script host. Its decision-core cases are covered by `repo_test.kotoba`; its
   handler-shape cases (ranking, order placement, tracking) are not, and porting
   them into `test/` is the standing follow-up.
