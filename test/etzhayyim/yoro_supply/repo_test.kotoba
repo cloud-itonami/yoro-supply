@@ -2,7 +2,7 @@
   "**この repo に実際に commit されているファイル**を検査する。
 
   contract-test が『規則が落ちること』を fixture で見せるのに対し、こちらは
-  『実物がその規則を通ること』を見る。加えて py/agent.cljc を実際に load して、
+  『実物がその規則を通ること』を見る。加えて py/agent.kotoba を実際に load して、
   README と manifest が宣言している決定核の不変条件（G1 SBT consent / G2 charter
   screening / G7 tithe 10% / G7+G11 署名なし settlement は intent 止まり）を
   実挙動で固定する —— descriptor が正しくても決定核が壊れれば actor の宣言は
@@ -31,10 +31,10 @@
        (filter #(str/ends-with? % ".edn"))
        (mapv #(reader/read-string (slurp* (str "lex/" %))))))
 
-(def agent-source (slurp* "py/agent.cljc"))
+(def agent-source (slurp* "py/agent.kotoba"))
 
 (def defn-names
-  "py/agent.cljc の top-level defn 名。handler 実在検査の入力。"
+  "py/agent.kotoba の top-level defn 名。handler 実在検査の入力。"
   (set (map second (re-seq #"\(defn\s+([A-Za-z0-9_*!?<>=-]+)" agent-source))))
 
 (def repo-data
@@ -44,7 +44,7 @@
 ;; 決定核を実際に load する（純関数のみ。network も LLM も呼ばない）。
 ;; nbb は top-level promise を await するので、後続の form からは
 ;; yoro-supply.cljc.agent の var が見える。
-(nbb.core/load-file (path/join repo-root "py" "agent.cljc"))
+(nbb.core/load-file (path/join repo-root "py" "agent.kotoba"))
 
 ;; ── descriptor: 全規則 ──────────────────────────────────────────────────────
 
@@ -91,7 +91,7 @@
     (is (.existsSync fs (path/join repo-root (:cell/entry cl)))
         (str "cell " (:cell/id cl) " entry " (:cell/entry cl)))))
 
-;; ── 決定核: py/agent.cljc の実挙動 ──────────────────────────────────────────
+;; ── 決定核: py/agent.kotoba の実挙動 ──────────────────────────────────────────
 
 (deftest a-stranger-without-sbt-cannot-place-an-order
   (testing "G1: active Adherent SBT を持たない DID の発注は refused"

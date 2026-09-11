@@ -1,17 +1,34 @@
 #!/usr/bin/env nbb
-;; run_tests.cljs — yoro-supply actor contract の検査。
+;; run_tests.kotoba — yoro-supply actor contract の検査。
 ;;
-;;   nbb --classpath src:test run_tests.cljs
+;;   nbb run_tests.kotoba          # repo root で。path は repo の中に在ること
 ;;
 ;; manifest.edn ↔ cells/*.edn ↔ lex/*.edn ↔ deploy/app-aozora.edn ↔
-;; py/agent.cljc の 5 面一致と、決定核（SBT gate / tithe 10% / intent 停止 /
+;; py/agent.kotoba の 5 面一致と、決定核（SBT gate / tithe 10% / intent 停止 /
 ;; charter screening）の実挙動をここで固定する。2026-08-22 までこの repo には
 ;; これらを検査するものが何も無かった。
 ;; workspace の規則で script host は nbb（.ts / .mjs / .sh の新規作成は禁止）。
+;;
+;; ── load は require ではなく path で行う（2026-09-11）──────────────────────
+;; 2026-09-10 の一括改名（2cfae9d）で source は全部 `.kotoba` になった。nbb の
+;; classpath resolver は ns 名を `.cljs` / `.cljc` にしか写さないので、
+;; `(:require [etzhayyim.yoro-supply.contract-test])` は
+;; `Could not find namespace` で止まる —— 改名後この suite は 1 度も走って
+;; いなかった（実測 2a6c9be: exit 1、test 0 本）。`nbb.core/load-file` は path を
+;; そのまま読むので拡張子を問わない。順序は依存順（contract → 2 つの test ns）。
+;; nbb は top-level の promise を await するので、後続の form から前の ns が見える。
+;;
+;; directory は 2 つ関わり、同じではない。nbb.edn の :deps は **script の在る
+;; directory** から解決され、repo のファイルは **cwd** から読む。この file を
+;; repo の外へコピーして repo root から走らせると kotoba.lang.text が解決できず
+;; `Could not find namespace` で止まり、repo の外を cwd にして走らせると
+;; contract.kotoba の ENOENT で止まる（両方 実測 2026-09-11）。
 (ns run-tests
   (:require [clojure.test :as t]
-            [etzhayyim.yoro-supply.contract-test]
-            [etzhayyim.yoro-supply.repo-test]))
+            [nbb.core]
+            ["node:path" :as path]))
+
+(def repo-root (.cwd js/process))
 
 (def green-marker
   "scripts/maturity-loop/mutations.edn の `:green-marker`。
@@ -20,20 +37,32 @@
   "yoro-supply actor contract: all green")
 
 (defmethod t/report [:cljs.test/default :end-run-tests] [m]
-  (if (t/successful? m)
+  (cond
+    ;; 0 本の suite は緑ではない。改名後の 2 週間、この repo の suite は
+    ;; 「走らなかった」を「落ちなかった」と同じ顔で持っていた —— require が
+    ;; 止まるので exit 1 ではあったが、load が静かに 0 本を集める形（sibling の
+    ;; JVM :test alias が実際にそうなった）に対しては exit 1 も守りにならない。
+    ;; 測れなかった検査は pass でも fail でもなく、専用の値で終わる。
+    (zero? (:test m))
+    (do (println "\nyoro-supply actor contract: REFUSED — 0 tests collected; a suite that ran nothing is not green")
+        (js/process.exit 2))
+    (t/successful? m)
     (println (str "\n" green-marker))
+    :else
     (do (println "\nyoro-supply actor contract: FAILED")
         (js/process.exit 1))))
 
-;; NOT run here: the agent suite at py/test_agent.clj. It is a bb-hosted legacy
-;; port (`#!/usr/bin/env bb`, clojure.java.io, and a `load-file` resolved from
-;; `babashka.file` — nbb has no load-file, and `py/agent.cljc` does not sit on a
-;; path its ns maps to, so this runner cannot load either file). The `.clj`
-;; extension is the declaration of that: it was `.cljc` until 2026-08-24, which
-;; claimed a portability the file never had. Measured the same day:
-;; `bb py/test_agent.clj` — Ran 12 tests containing 20 assertions, 0 failures.
-;; bb is a retired script host workspace-wide (ADR-2607173000), so the standing
-;; follow-up is to port the agent tests into test/ as portable .cljc and name
-;; them in the require + run-tests call above.
+;; NOT run here: the agent suite at py/test_agent.kotoba. It is a bb-hosted
+;; port (`#!/usr/bin/env bb`, clojure.java.io, `System/getProperty
+;; "babashka.file"`) — none of which nbb provides — so this runner cannot load
+;; it as written. Its 12 tests / 20 assertions last ran green under bb on
+;; 2026-08-24; bb is a retired script host workspace-wide (ADR-2607173000), so
+;; the standing follow-up is to port those cases into test/ and name the file
+;; below. The decision-core cases that matter to the README (G1 / G2 / G7 / G11)
+;; are already covered by repo_test.kotoba, which loads py/agent.kotoba for real.
+(nbb.core/load-file (path/join repo-root "src" "etzhayyim" "yoro_supply" "contract.kotoba"))
+(nbb.core/load-file (path/join repo-root "test" "etzhayyim" "yoro_supply" "contract_test.kotoba"))
+(nbb.core/load-file (path/join repo-root "test" "etzhayyim" "yoro_supply" "repo_test.kotoba"))
+
 (t/run-tests 'etzhayyim.yoro-supply.contract-test
              'etzhayyim.yoro-supply.repo-test)
