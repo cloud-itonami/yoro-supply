@@ -1,4 +1,4 @@
-#!/usr/bin/env bb
+#!/usr/bin/env kbb
 ;; Clojure port of py/agent.cljc (yoro-supply procurement & logistics actor).
 (ns yoro-supply.cljc.agent
   "yoro-supply 綾取供給 — material sourcing & logistics langgraph actor (kotoba WASM cell).
@@ -20,7 +20,7 @@
   This R0 build computes and returns plans; it does not dispatch real work and
   does not broadcast settlements (settlement stops at :intent).
 
-  Run:  bb --classpath 20-actors 20-actors/yoro-supply/py/agent.cljc"
+  Run:  kbb --classpath 20-actors 20-actors/yoro-supply/py/agent.cljc"
   (:require [kotoba.lang.text :as str]
             [clojure.set :as set]))
 

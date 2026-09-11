@@ -107,5 +107,5 @@ requires.
 
 - `kotoba/deploy.sh` — stops at the node health check, and past it names
   `kotoba/ingest_mcp.cljc`, which is not in this repository.
-- `py/test_agent.kotoba` — bb-hosted; bb is a retired script host. Its
+- `py/test_agent.kotoba` — bb-hosted; kbb -M:is a retired script host. Its
   decision-core cases are covered by `test/`; its handler-shape cases are not.

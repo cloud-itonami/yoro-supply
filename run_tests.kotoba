@@ -1,4 +1,4 @@
-#!/usr/bin/env nbb
+#!/usr/bin/env kbb
 ;; run_tests.kotoba — yoro-supply actor contract の検査。
 ;;
 ;;   nbb run_tests.kotoba          # repo root で。path は repo の中に在ること
@@ -56,7 +56,7 @@
 ;; port (`#!/usr/bin/env bb`, clojure.java.io, `System/getProperty
 ;; "babashka.file"`) — none of which nbb provides — so this runner cannot load
 ;; it as written. Its 12 tests / 20 assertions last ran green under bb on
-;; 2026-08-24; bb is a retired script host workspace-wide (ADR-2607173000), so
+;; 2026-08-24; kbb -M:is a retired script host workspace-wide (ADR-2607173000), so
 ;; the standing follow-up is to port those cases into test/ and name the file
 ;; below. The decision-core cases that matter to the README (G1 / G2 / G7 / G11)
 ;; are already covered by repo_test.kotoba, which loads py/agent.kotoba for real.
