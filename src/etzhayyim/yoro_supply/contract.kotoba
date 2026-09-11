@@ -10,14 +10,14 @@
      deploy      deploy/app-aozora.edn 由来。EDN なのでキーワードキー
      cells       cells/*.edn 由来の vector
      lexicons    lex/*.edn 由来の vector（AT Protocol lexicon 形）
-     defn-names  py/agent.cljc の source から抽出した defn 名の set（文字列）
+     defn-names  py/agent.kotoba の source から抽出した defn 名の set（文字列）
 
    出力は違反の vector。空なら適合。
 
    ## この repo の契約は 5 つのファイル面の一致でできている
 
    manifest.edn は :actor/cells と :actor/lex を宣言し、cells/*.edn は
-   :cell/handler で py/agent.cljc の関数を名指しし、deploy/app-aozora.edn は
+   :cell/handler で py/agent.kotoba の関数を名指しし、deploy/app-aozora.edn は
    :deployment/capability-allowlist で cell 由来の能力を配る。この 5 面の
    どれか 1 つだけを書き換えるのが一番起こりやすい壊れ方（cargo が 2026-05〜08 に
    踏んだ『descriptor が静かに割れる』形）だが、2026-08-22 までこの一致を検査する
@@ -139,7 +139,7 @@
           (str "lex/ ships " c " which the manifest never declares"))))))
 
 (defn check-handlers
-  "各 cell の :cell/handler は py/agent.cljc に実在する defn を指す。
+  "各 cell の :cell/handler は py/agent.kotoba に実在する defn を指す。
    handler を cell 側だけ改名すると、descriptor は valid EDN のまま配備が
    実行時に初めて落ちる —— ここで捕まえる。"
   [cells defn-names]
